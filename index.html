@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<header>
+    <title>Calculator</title>
+</header>
+<body>
+    <div class="btns">
+        
+        <p id="space"><br></p>
+        
+        <h1 id="title" class="theBtns">Calculator</h1>
+        
+        <div id="block">
+            <p class="solid" id="ans">0</p>
+        </div>
+        
+        <div class="theBtns">
+            <div>
+                <button id="AC" onclick="getElementById('ans').innerHTML = 0">AC</button>
+                <button onclick="Del()">del</button>
+                <button onclick="OP('/')">/</button>
+            </div>
+            <div>
+                <button onclick="Num(1)">1</button>
+                <button onclick="Num(2)">2</button>
+                <button onclick="Num(3)">3</button>
+                <button onclick="OP('x')">x</button>
+            </div>
+            <div>
+                <button onclick="Num(4)">4</button>
+                <button onclick="Num(5)">5</button>
+                <button onclick="Num(6)">6</button>
+                <button onclick="OP('-')">-</button>
+            </div>
+            <div>
+                <button onclick="Num(7)">7</button>
+                <button onclick="Num(8)">8</button>
+                <button onclick="Num(9)">9</button>
+                <button onclick="OP('+')">+</button>
+            </div>
+            <div>
+                <button onclick="Dec()">.</button>
+                <button onclick="Zero()">0</button>
+                <button id="equal" onclick="Equal()">=</button>
+            </div>
+        </div>
+        
+    </div>
+</body>
+
+<script>
+    function Num(num){
+        if(document.getElementById('ans').innerHTML == "0"){
+            document.getElementById('ans').innerHTML = num;
+        } else {
+            document.getElementById('ans').innerHTML += num;
+        }
+    }
+    
+    function Zero(){
+        if(document.getElementById('ans').innerHTML != "0"){
+            document.getElementById('ans').innerHTML += "0";
+        }
+    }
+    
+    function Del(){
+        if(document.getElementById('ans').innerHTML.length <= 1){
+            document.getElementById('ans').innerHTML = "0";
+        } else {
+            document.getElementById('ans').innerHTML = document.getElementById('ans').innerHTML.substring(0, document.getElementById('ans').innerHTML.length - 1);
+        }
+    }
+    
+    function OP(op){
+        var ops = ['/', '.', '+', 'x', '-'];
+        var isNum = true;
+        
+        for(var i = 0; i < document.getElementById('ans').innerHTML.length; i++){
+            if(document.getElementById('ans').innerHTML[document.getElementById('ans').innerHTML.length-1] == ops[i]){
+                isNum = false;
+            }
+        }
+        if(isNum){
+            document.getElementById('ans').innerHTML += op;
+        }
+    }
+        
+    function Dec(){
+        document.getElementById('ans').innerHTML += ".";
+    }
+    
+    function Equal(){
+        var sen = document.getElementById('ans').innerHTML.replace('x', "*");
+        document.getElementById('ans').innerHTML = eval(sen);
+    }
+</script>
+
+<style>
+    body{
+        background-color: skyblue;
+        align-items: center;
+    }
+    
+    #AC{
+        width: 124px;
+    }
+    
+    .space{
+        height: 100px;
+    }
+    
+    div.btns{
+        margin: 90px auto;
+        border-style: solid;
+        border-width: 3px;
+        border-color: black;
+        width: 600px;
+        height: 600px;
+    }
+    
+    div#block{
+        width: 300px;
+        height: 40px;
+        margin: auto;
+    }
+    
+    button{
+        border-width: 5px;
+        height: 60px;
+        width: 60px;
+        font-family: sans-serif;
+        background-color: white;
+    }
+    
+    button:active{
+        background-color: pink;
+    }
+    
+    .theBtns{
+        width: 300px;
+        margin: auto;
+        text-align: center;
+    }
+    
+    #equal{
+        width: 124px;
+    }
+    
+    p{
+        font-family: sans-serif;
+        font-size: 25px;
+    }
+    
+    p.solid{
+        width: 300px;
+        height: 30px;
+        border-style: solid;
+        border-radius: 5px;
+        background-color: white;
+        text-align: right;
+    }
+    
+    h1{
+        font-family: sans-serif
+    }
+    
+    h1#title{
+        height: 20px;
+        margin: auto;
+    }
+</style>

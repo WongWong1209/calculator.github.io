@@ -1,3 +1,4 @@
+<!   (´・ω・`)    >
 <!DOCTYPE html>
 <header>
     <title>Calculator</title>
@@ -15,32 +16,37 @@
         
         <div class="theBtns">
             <div>
-                <button id="AC" onclick="getElementById('ans').innerHTML = 0">AC</button>
-                <button onclick="Del()">del</button>
-                <button onclick="OP('/')">/</button>
+                <button id="AC" onclick="AC()">AC</button>
+                <button id="del" onclick="Del()">del</button>
+                <button class="op" onclick="OP('/')">/</button>
+                <button class="other1" onclick="Pow()">x^y</button>
             </div>
             <div>
-                <button onclick="Num(1)">1</button>
-                <button onclick="Num(2)">2</button>
-                <button onclick="Num(3)">3</button>
-                <button onclick="OP('x')">x</button>
+                <button class="num" onclick="Num(1)">1</button>
+                <button class="num" onclick="Num(2)">2</button>
+                <button class="num" onclick="Num(3)">3</button>
+                <button class="op" onclick="OP('x')">x</button>
+                <button class="other1" onclick="OP('(')">(</button>
             </div>
             <div>
-                <button onclick="Num(4)">4</button>
-                <button onclick="Num(5)">5</button>
-                <button onclick="Num(6)">6</button>
-                <button onclick="OP('-')">-</button>
+                <button class="num" onclick="Num(4)">4</button>
+                <button class="num" onclick="Num(5)">5</button>
+                <button class="num" onclick="Num(6)">6</button>
+                <button class="op" onclick="OP('-')">-</button>
+                <button class="other1" onclick="OP(')')">)</button>
             </div>
             <div>
-                <button onclick="Num(7)">7</button>
-                <button onclick="Num(8)">8</button>
-                <button onclick="Num(9)">9</button>
-                <button onclick="OP('+')">+</button>
+                <button class="num" onclick="Num(7)">7</button>
+                <button class="num" onclick="Num(8)">8</button>
+                <button class="num" onclick="Num(9)">9</button>
+                <button class="op" onclick="OP('+')">+</button>
+                <button class="other1" onclick="">@</button>
             </div>
             <div>
-                <button onclick="Dec()">.</button>
-                <button onclick="Zero()">0</button>
+                <button class="num" onclick="Dec()">.</button>
+                <button class="num" onclick="Zero()">0</button>
                 <button id="equal" onclick="Equal()">=</button>
+                <button class="other1" onclick="">@</button>
             </div>
         </div>
         
@@ -48,11 +54,23 @@
 </body>
 
 <script>
+    function AC(){
+        document.getElementById('ans').innerHTML = 0;
+        if(isPow){
+            UnPow();
+        }
+    }
+    
     function Num(num){
         if(document.getElementById('ans').innerHTML == "0"){
             document.getElementById('ans').innerHTML = num;
         } else {
             document.getElementById('ans').innerHTML += num;
+        }
+        
+        if(deleteEnable){
+            deleteEnable = false;
+            document.getElementById('del').disabled = false;
         }
     }
     
@@ -60,27 +78,64 @@
         if(document.getElementById('ans').innerHTML != "0"){
             document.getElementById('ans').innerHTML += "0";
         }
+        
+        if(deleteEnable){
+            deleteEnable = false;
+            document.getElementById('del').disabled = false;
+        }
     }
     
+    
+    var deleteEnable = false;
     function Del(){
         if(document.getElementById('ans').innerHTML.length <= 1){
             document.getElementById('ans').innerHTML = "0";
         } else {
             document.getElementById('ans').innerHTML = document.getElementById('ans').innerHTML.substring(0, document.getElementById('ans').innerHTML.length - 1);
         }
+        
+        if(document.getElementById('ans').innerHTML[document.getElementById('ans').innerHTML.length - 1] == '^'){
+            document.getElementById('del').disabled = true;
+            deleteEnable = true;
+        }
     }
     
     function OP(op){
-        var ops = ['/', '.', '+', 'x', '-'];
+        var ops = ['/', '.', '+', 'x', '-', '(', '^'];
         var isNum = true;
+        var frontCount = 0;
+        var backCount = 0;
         
         for(var i = 0; i < ops.length; i++){
             if(document.getElementById('ans').innerHTML[document.getElementById('ans').innerHTML.length-1] == ops[i]){
                 isNum = false;
             }
         }
-        if(isNum){
-            document.getElementById('ans').innerHTML += op;
+        
+        if(op == ')'){
+            if(document.getElementById('ans').innerHTML[document.getElementById('ans').innerHTML.length-1] != '('){
+                for(var i = 0; i < document.getElementById('ans').innerHTML.length; i++){
+                    if(document.getElementById('ans').innerHTML[i] == '('){
+                        frontCount ++;
+                    } else if(document.getElementById('ans').innerHTML[i] == ')'){
+                        backCount ++;
+                    }
+                }
+                if(isNum && frontCount - backCount >= 1){
+                    document.getElementById('ans').innerHTML += op;
+                }
+            }
+        } else if(op == '(') {
+            if(document.getElementById('ans').innerHTML == '0'){
+                document.getElementById('ans').innerHTML = '(';
+            } else if(!isNum){
+                document.getElementById('ans').innerHTML += op;
+            }
+            
+        } else {
+            if(isNum){
+                document.getElementById('ans').innerHTML += op;
+            }
         }
     }
         
@@ -88,9 +143,62 @@
         document.getElementById('ans').innerHTML += ".";
     }
     
+    var isPow = false;
+    function Pow(){
+        document.getElementById('ans').innerHTML = '(' + document.getElementById('ans').innerHTML + ')^';
+        var other1s = document.getElementsByClassName('other1');
+        var ops = document.getElementsByClassName('op');
+        deleteEnable = true;
+        document.getElementById('del').disabled = true;
+        for(var i = 0; i < other1s.length; i++){
+            other1s[i].disabled = true;
+        }
+        for(var i = 0; i < ops.length; i++){
+            ops[i].disabled = true;
+        }
+        
+        isPow = true;
+    }
+    
     function Equal(){
-        var sen = document.getElementById('ans').innerHTML.replace('x', "*");
-        document.getElementById('ans').innerHTML = eval(sen);
+        var sen = document.getElementById('ans').innerHTML.replace(/x/gi, "*");
+        if(isPow){
+            var powIndex;
+            var powNum = "";
+            var sen2 = "";
+            
+            for(var i = 0; i < sen.length; i++){
+                if(sen[i] == '^'){
+                    powIndex = i;
+                    break;
+                }
+            }
+            
+            for(var i = 0; i < sen.length - powIndex - 1; i++){
+                powNum += sen[powIndex + 1 + i];
+            }
+            
+            for(var i = 0; i < powIndex; i++){
+                sen2 += sen[i];
+            }
+            
+            document.getElementById('ans').innerHTML = Math.pow(eval(sen2), powNum);
+            UnPow();
+        } else {
+            document.getElementById('ans').innerHTML = eval(sen);
+        }
+    }
+    
+    function UnPow(){
+        isPow = false;
+        var other1s = document.getElementsByClassName('other1');
+        var ops = document.getElementsByClassName('op');
+        for(var i = 0; i < other1s.length; i++){
+            other1s[i].disabled = false;
+        }
+        for(var i = 0; i < ops.length; i++){
+            ops[i].disabled = false;
+        }
     }
 </script>
 
@@ -102,6 +210,11 @@
     
     #AC{
         width: 124px;
+        background-color: greenyellow;
+    }
+    
+    #AC:active{
+        background-color: pink;
     }
     
     .space{
@@ -136,13 +249,19 @@
     }
     
     .theBtns{
-        width: 300px;
+        width: 360px;
         margin: auto;
         text-align: center;
+        font-size: 15px;
     }
     
     #equal{
         width: 124px;
+        background-color: greenyellow;
+    }
+    
+    #equal:active{
+        background-color: pink;
     }
     
     p{
@@ -166,5 +285,18 @@
     h1#title{
         height: 20px;
         margin: auto;
+        font-size: 40px;
+    }
+    
+    #del{
+        background-color: hotpink;
+    }
+    
+    #del:active{
+        background-color: pink;
+    }
+    
+    .num{
+        font-size: 20px;
     }
 </style>

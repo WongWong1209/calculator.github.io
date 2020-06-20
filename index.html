@@ -41,7 +41,7 @@
                 </div>
                 <div>
                     <button class="num" onclick="Dec()">.</button>
-                    <button class="num" onclick="Zero()">0</button>
+                    <button class="num" onclick="Num(0)">0</button>
                     <button id="equal" onclick="Equal()">=</button>
                 </div>
             </div>
@@ -60,9 +60,9 @@
                 </div>
                 <div>
                     <button class="other1" onclick="OP(')')">)</button>
-                    <button class="other1" onclick="">@</button>
-                    <button class="other1" onclick="">@</button>
-                    <button class="other1" onclick="">@</button>
+                    <button class="other1" onclick="Log('xy')">logxY</button>
+                    <button class="other1" onclick="Log('10')">log10X</button>
+                    <button class="other1" onclick="Log('2')">log2X</button>
                 </div>
                 <div>
                     <button class="other1" onclick="Radical(2)">√</button>
@@ -83,6 +83,7 @@
 
     <script>
         function AC() {
+            isLoging = false;
             document.getElementById('ans').innerHTML = 0;
             if (isPow) {
                 UnPow();
@@ -93,7 +94,19 @@
             if (document.getElementById('ans').innerHTML == "0") {
                 document.getElementById('ans').innerHTML = num;
             } else {
-                document.getElementById('ans').innerHTML += num;
+                if (isLoging) {
+                    var shortSen = document.getElementById('ans').innerHTML;
+                    var backBracketIndex;
+                    for (var i = 0; i < shortSen.length; i++) {
+                        if (shortSen[i] == ')') {
+                            backBracketIndex = i;
+                            break;
+                        }
+                    }
+                    document.getElementById('ans').innerHTML = shortSen.substr(0, backBracketIndex) + num + shortSen.substr(backBracketIndex);
+                } else {
+                    document.getElementById('ans').innerHTML += num;
+                }
             }
 
             if (deleteEnable) {
@@ -101,18 +114,6 @@
                 document.getElementById('del').disabled = false;
             }
         }
-
-        function Zero() {
-            if (document.getElementById('ans').innerHTML != "0") {
-                document.getElementById('ans').innerHTML += "0";
-            }
-
-            if (deleteEnable) {
-                deleteEnable = false;
-                document.getElementById('del').disabled = false;
-            }
-        }
-
 
         var deleteEnable = false;
 
@@ -194,7 +195,39 @@
             var sen = document.getElementById('ans').innerHTML.replace(/x/gi, "*");
             sen = sen.replace(/÷/gi, "/");
 
-            if (isPow) {
+            if (isLoging) {
+                var frontBracket;
+                var backBracket;
+                var logNum = "";
+                var beLogNum = "";
+
+                isLoging = false;
+
+                for (var i = 0; i < sen.length; i++) {
+                    if (sen[i] == '(') {
+                        frontBracket = i;
+                        break;
+                    }
+                }
+                for (var i = 0; i < sen.length; i++) {
+                    if (sen[i] == ')') {
+                        backBracket = i;
+                        break;
+                    }
+                }
+
+                for (var i = 0; i < backBracket - frontBracket - 1; i++) {
+                    logNum += sen[frontBracket + 1 + i];
+                }
+
+                for (var i = 0; i < sen.length - backBracket - 1; i++) {
+                    beLogNum += sen[backBracket + 1 + i];
+                }
+
+                UnPow();
+                document.getElementById('ans').innerHTML = Math.log(beLogNum) / Math.log(eval(logNum));
+            } else if (isPow) {
+                console.log("pow");
                 var powIndex;
                 var powNum = "";
                 var sen2 = "";
@@ -243,23 +276,59 @@
                 document.getElementById('ans').innerHTML = Math.pow(eval(sen), (1 / 3));
             }
         }
-        
-        function Trigonometric(index){
+
+        function Trigonometric(index) {
             var sen = document.getElementById('ans').innerHTML.replace(/x/gi, "*");
             sen = sen.replace(/÷/gi, "/");
-            
-            if(index == "sin"){
-                document.getElementById('ans').innerHTML = Math.sin(eval(sen)/180*Math.PI);
-            } else if(index == "tan"){
-                document.getElementById('ans').innerHTML = Math.tan(eval(sen)/180*Math.PI);
-            } else if(index == "sec"){
-                document.getElementById('ans').innerHTML = 1/Math.cos(eval(sen)/180*Math.PI);
-            } else if(index == "cos"){
-                document.getElementById('ans').innerHTML = Math.cos(eval(sen)/180*Math.PI);
-            } else if(index == "cot"){
-                document.getElementById('ans').innerHTML = 1/Math.tan(eval(sen)/180*Math.PI);
-            } else if(index == "csc"){
-                document.getElementById('ans').innerHTML = 1/Math.sin(eval(sen)/180*Math.PI);
+
+            if (index == "sin") {
+                document.getElementById('ans').innerHTML = Math.sin(eval(sen) / 180 * Math.PI);
+            } else if (index == "tan") {
+                document.getElementById('ans').innerHTML = Math.tan(eval(sen) / 180 * Math.PI);
+            } else if (index == "sec") {
+                document.getElementById('ans').innerHTML = 1 / Math.cos(eval(sen) / 180 * Math.PI);
+            } else if (index == "cos") {
+                document.getElementById('ans').innerHTML = Math.cos(eval(sen) / 180 * Math.PI);
+            } else if (index == "cot") {
+                document.getElementById('ans').innerHTML = 1 / Math.tan(eval(sen) / 180 * Math.PI);
+            } else if (index == "csc") {
+                document.getElementById('ans').innerHTML = 1 / Math.sin(eval(sen) / 180 * Math.PI);
+            }
+        }
+
+        var isLoging = false;
+
+        function Log(index) {
+            var sen = document.getElementById('ans').innerHTML.replace(/x/gi, "*");
+            sen = sen.replace(/÷/gi, "/");
+            var originSen = document.getElementById('ans').innerHTML;
+
+            if (index == "xy") {
+                //log2(6+86+9)
+                document.getElementById('ans').innerHTML = "log" + "(" + ")" + originSen;
+
+                var other1s = document.getElementsByClassName('other1');
+                var ops = document.getElementsByClassName('op');
+                deleteEnable = true;
+                document.getElementById('del').disabled = true;
+                for (var i = 0; i < other1s.length; i++) {
+                    other1s[i].disabled = true;
+                }
+                for (var i = 0; i < ops.length; i++) {
+                    ops[i].disabled = true;
+                }
+                isPow = true;
+
+                isLoging = true;
+
+
+            } else {
+                var sen = document.getElementById('ans').innerHTML.replace(/x/gi, "*");
+                sen = sen.replace(/÷/gi, "/");
+                var beLogNum = eval(sen);
+                
+                if(index == '2') document.getElementById('ans').innerHTML = Math.log2(beLogNum);
+                else if(index == '10') document.getElementById('ans').innerHTML = Math.log10(beLogNum);
             }
         }
 
@@ -270,8 +339,8 @@
             background-color: skyblue;
             align-items: center;
         }
-        
-        #ans{
+
+        #ans {
             font-size: 35px;
             font-family: sans-serif;
             width: 400px;
@@ -311,7 +380,7 @@
         }
 
         button {
-            font-size: 20px;
+            font-size: 15px;
             border-width: 5px;
             height: 60px;
             width: 60px;
@@ -378,10 +447,11 @@
         .num {
             font-size: 20px;
         }
-        
-        #ps{
+
+        #ps {
             font-size: 20px;
             margin-top: 310px;
             margin-left: 180px;
         }
+
     </style>
